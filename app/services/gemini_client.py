@@ -25,7 +25,7 @@ def call_gemini(prompt: str) -> str:
         ]
     }
  
-    response = requests.post(GEMINI_URL, headers=headers, params=params, json=body, timeout=30)
+    response = requests.post(GEMINI_URL, headers=headers, params=params, json=body, timeout=60)
     response.raise_for_status()
     data = response.json()
  
