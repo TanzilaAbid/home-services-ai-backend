@@ -72,17 +72,47 @@ To inspect the database directly:
 
 bash
 docker exec -it homeservices_pg psql -U admin -d home_services -c "\dt"
-```
-Yeh 5 tables dikhani chahiye: `users`, `provider_profiles`, `service_categories`, `bookings`, `reviews`
 
----
+Expected tables: users, provider_profiles, service_categories, bookings, reviews
 
-## Agla Step (Day 2)
-- Sample/dummy data database mein daalna
-- ChromaDB setup finalize karna
-- Javaria ke saath API contract decide karna (kaunse endpoints, kya JSON format)
+API Endpoints
 
-## Troubleshooting
-- **Port already in use**: `docker-compose.yml` mein ports change kar lo (e.g. `5433:5432`)
-- **Docker permission error (Linux)**: `sudo docker compose up --build` try karo
-- **Container build slow first time**: normal hai, pehli baar images download hoti hain
+Full request/response schemas are documented in API_CONTRACT.md. Summary:
+
+Method	Endpoint	Description
+POST	/api/chat	Natural-language chatbot — extracts intent and returns matched providers
+POST	/api/price-estimate	Returns estimated price range and job duration
+GET	/api/providers	Filterable provider search (category, price, rating)
+
+All responses are JSON. Errors follow a standard shape:
+
+json
+{ "error": "Description of what went wrong", "status_code": 400 }
+Database Schema
+
+Five core tables, related via foreign keys:
+
+users — customers, providers, and admins (differentiated by role)
+service_categories — e.g. Painter, Plumber, Electrician
+provider_profiles — bio, skill tags, pricing tier, hourly rate, rating
+bookings — links a customer, provider, and category with status tracking
+reviews — ratings and comments tied to completed bookings
+
+See db/schema.sql for full definitions and indexes.
+
+Integration with Frontend
+CORS is enabled for local development (allow_origins=["*"])
+No auth required for /api/chat or /api/price-estimate
+See API_CONTRACT.md for open integration questions and the full request/response contract
+Roadmap
+ Docker + PostgreSQL + ChromaDB setup
+ Database schema with relationships and indexes
+ RAG chatbot foundation (intent parsing + vector search)
+ Price estimator algorithm
+ Full RAG pipeline testing with real queries
+ Deployment to Render/Railway
+ End-to-end testing with frontend
+Troubleshooting
+Port already in use — change the host port in docker-compose.yml (e.g. 5433:5432)
+Docker permission error (Linux) — try sudo docker compose up --build
+Slow first build — normal, Docker images are being downloaded for the first time
