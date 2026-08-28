@@ -124,4 +124,3 @@ def handle_chat_message(user_message: str) -> dict:
         "matched_providers": matched_providers,
         "quick_replies": quick_replies,
     }
- 
