@@ -46,6 +46,13 @@ def search_matching_providers(intent: dict, n_results: int = 3) -> list:
             metadata = results["metadatas"][0][i]
             hourly_rate = metadata.get("hourly_rate", 0.0) or 0.0
  
+            # Skip providers with incomplete/junk pricing data (e.g. test
+            # records with hourly_rate = 0). A real provider should always
+            # have a positive rate, so treat 0 as "not properly set up"
+            # rather than "free" and exclude them from results.
+            if hourly_rate <= 0:
+                continue
+ 
             # Enforce the customer's budget_max, if they gave one.
             if budget_max is not None and hourly_rate > budget_max:
                 continue
@@ -124,3 +131,4 @@ def handle_chat_message(user_message: str) -> dict:
         "matched_providers": matched_providers,
         "quick_replies": quick_replies,
     }
+ 
